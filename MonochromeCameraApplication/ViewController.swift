@@ -16,6 +16,8 @@ class ViewController: UIViewController {
     var photoOutput : AVCapturePhotoOutput?
     // プレビュー表示用のレイヤ
     var cameraPreviewLayer : AVCaptureVideoPreviewLayer?
+    // シャッターボタン
+    @IBOutlet weak var cameraButton: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,14 +26,36 @@ class ViewController: UIViewController {
         setupInputOutput()
         setupPreviewLayer()
         captureSession.startRunning()
+        styleCaptureButton()
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    @IBAction func cameraButton_TouchUpInside(_ sender: Any) {
+        let settings = AVCapturePhotoSettings()
+        // フラッシュの設定
+        settings.flashMode = .auto
+        // カメラの手ぶれ補正
+        settings.isAutoStillImageStabilizationEnabled = true
+        // 撮影された画像をdelegateメソッドで処理
+        self.photoOutput?.capturePhoto(with: settings, delegate: self as! AVCapturePhotoCaptureDelegate)
+    }
 
+}
 
+extension ViewController: AVCapturePhotoCaptureDelegate{
+   // 撮影した画像データが生成されたときに呼び出されるデリゲートメソッド
+   func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+       if let imageData = photo.fileDataRepresentation() {
+           // Data型をUIImageオブジェクトに変換
+           let uiImage = UIImage(data: imageData)
+           // 写真ライブラリに画像を保存
+           UIImageWriteToSavedPhotosAlbum(uiImage!, nil,nil,nil)
+       }
+   }
 }
 
 //MARK: カメラ設定メソッド
@@ -87,5 +111,13 @@ extension ViewController{
 
         self.cameraPreviewLayer?.frame = view.frame
         self.view.layer.insertSublayer(self.cameraPreviewLayer!, at: 0)
+    }
+    
+    // ボタンのスタイルを設定
+    func styleCaptureButton() {
+        cameraButton.layer.borderColor = UIColor.white.cgColor
+        cameraButton.layer.borderWidth = 5
+        cameraButton.clipsToBounds = true
+        cameraButton.layer.cornerRadius = min(cameraButton.frame.width, cameraButton.frame.height) / 2
     }
 }
