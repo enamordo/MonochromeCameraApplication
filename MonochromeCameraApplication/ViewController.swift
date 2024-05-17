@@ -18,7 +18,12 @@ class ViewController: UIViewController {
     var cameraPreviewLayer : AVCaptureVideoPreviewLayer?
     // シャッターボタン
     @IBOutlet weak var cameraButton: UIButton!
-
+    // カウントラベル
+    @IBOutlet weak var countLabel: UILabel!
+    
+    // タイマー
+    var timer = Timer()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCaptureSession()
@@ -35,15 +40,22 @@ class ViewController: UIViewController {
     }
     
     @IBAction func cameraButton_TouchUpInside(_ sender: Any) {
-        let settings = AVCapturePhotoSettings()
-        // フラッシュの設定
-        settings.flashMode = .auto
-        // カメラの手ぶれ補正
-        settings.isAutoStillImageStabilizationEnabled = true
-        // 撮影された画像をdelegateメソッドで処理
-        self.photoOutput?.capturePhoto(with: settings, delegate: self as! AVCapturePhotoCaptureDelegate)
+        // カウントタイムのリセット
+        var time = 3
+        self.countLabel.text = String(time)
+        self.countLabel.isHidden = false
+        // タイマー処理
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { (timer) in
+            time -= 1
+            self.countLabel.text = String(time)
+            if time == 0 {
+                timer.invalidate()
+                self.countLabel.isHidden = true
+                self.shoot()
+            }
+        })
     }
-
+    
 }
 
 extension ViewController: AVCapturePhotoCaptureDelegate{
@@ -120,4 +132,17 @@ extension ViewController{
         cameraButton.clipsToBounds = true
         cameraButton.layer.cornerRadius = min(cameraButton.frame.width, cameraButton.frame.height) / 2
     }
+    
+    // カメラで撮影
+    func shoot() {
+        // 設定のオブジェクト化
+        let settings = AVCapturePhotoSettings()
+        // フラッシュの設定
+        settings.flashMode = .auto
+        // カメラの手ぶれ補正
+        settings.isAutoStillImageStabilizationEnabled = true
+        //        // 撮影された画像をdelegateメソッドで処理
+        self.photoOutput?.capturePhoto(with: settings, delegate: self as! AVCapturePhotoCaptureDelegate)
+    }
+    
 }
