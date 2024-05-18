@@ -39,7 +39,7 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func cameraButton_TouchUpInside(_ sender: Any) {
+    @IBAction func cameraButton_TouchUpInside(_ sender: UIButton) {
         // カウントタイムのリセット
         var time = 3
         self.countLabel.text = String(time)
@@ -150,6 +150,7 @@ extension ViewController{
     func transitionToDisplayViewController() {
         let dvc = self.storyboard?.instantiateViewController(identifier: "Display") as! DisplayViewController
         let uinc = UINavigationController(rootViewController: dvc)
+        // スワイプで戻れてしまうプッシュ遷移でなく、モーダル遷移のフルスクリーンにする
         uinc.modalPresentationStyle = .fullScreen
         self.navigationController?.present(uinc, animated: true)
     }
