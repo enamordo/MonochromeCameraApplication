@@ -75,7 +75,7 @@
                                     <fontDescription key="titleFontDescription" style="UICTFontTextStyleTitle1"/>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="closeModal:" destination="zjG-tS-dtb" eventType="touchUpInside" id="2um-N2-JQm"/>
+                                    <action selector="dismiss:" destination="zjG-tS-dtb" eventType="touchUpInside" id="n9V-Ts-h8C"/>
                                 </connections>
                             </button>
                         </subviews>
