@@ -52,6 +52,7 @@ class ViewController: UIViewController {
                 timer.invalidate()
                 self.countLabel.isHidden = true
                 self.shoot()
+                self.transitionToDisplayViewController()
             }
         })
     }
@@ -133,7 +134,7 @@ extension ViewController{
         cameraButton.layer.cornerRadius = min(cameraButton.frame.width, cameraButton.frame.height) / 2
     }
     
-    // カメラで撮影
+    // カメラ撮影
     func shoot() {
         // 設定のオブジェクト化
         let settings = AVCapturePhotoSettings()
@@ -141,8 +142,16 @@ extension ViewController{
         settings.flashMode = .auto
         // カメラの手ぶれ補正
         settings.isAutoStillImageStabilizationEnabled = true
-        //        // 撮影された画像をdelegateメソッドで処理
+        // 撮影された画像をdelegateメソッドで処理
         self.photoOutput?.capturePhoto(with: settings, delegate: self as! AVCapturePhotoCaptureDelegate)
+    }
+
+    // 撮影後の画面遷移
+    func transitionToDisplayViewController() {
+        let dvc = self.storyboard?.instantiateViewController(identifier: "Display") as! DisplayViewController
+        let uinc = UINavigationController(rootViewController: dvc)
+        uinc.modalPresentationStyle = .fullScreen
+        self.navigationController?.present(uinc, animated: true)
     }
     
 }
