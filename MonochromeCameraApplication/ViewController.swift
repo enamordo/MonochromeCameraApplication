@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     // プレビュー表示用のレイヤ
     var cameraPreviewLayer : AVCaptureVideoPreviewLayer?
     // モノクロに加工した写真
-    var monochromeImage: UIImage?
+    var monochromeUIImage: UIImage?
     // タイマー
     var timer = Timer()
     
@@ -67,7 +67,9 @@ extension ViewController: AVCapturePhotoCaptureDelegate{
        if let imageData = photo.fileDataRepresentation() {
            // Data型をUIImageオブジェクトに変換
            let uiImage = UIImage(data: imageData)
-           
+           // 写真の向き情報を保持する
+           let orientation = uiImage!.imageOrientation
+
            // グレースケールに加工
            let ciImage:CIImage = CIImage(image: uiImage!)!;
            let ciFilter:CIFilter = CIFilter(name: "CIColorMonochrome")!
@@ -77,13 +79,10 @@ extension ViewController: AVCapturePhotoCaptureDelegate{
            let ciContext:CIContext = CIContext(options: nil)
            let cgimg:CGImage = ciContext.createCGImage(ciFilter.outputImage!, from:ciFilter.outputImage!.extent)!
 
-           // グレースケールに加工後のUIImage
-           // TODO: orientation:UIImageOrientation.Upにすると、画像の角度がプレビューと変わってしまうので、なんとかしたい
-           // カメラのデフォルトの向きが横長(Landscape)のためこうなる？
-           monochromeImage = UIImage(cgImage: cgimg, scale: 1.0, orientation:UIImage.Orientation.right)
+           monochromeUIImage = UIImage(cgImage: cgimg, scale: 1.0, orientation: orientation)
            
            // 写真ライブラリに画像を保存
-           UIImageWriteToSavedPhotosAlbum(monochromeImage!, nil,nil,nil)
+           UIImageWriteToSavedPhotosAlbum(monochromeUIImage!, nil,nil,nil)
        }
    }
 }
