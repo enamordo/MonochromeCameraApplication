@@ -16,13 +16,15 @@ class ViewController: UIViewController {
     var photoOutput : AVCapturePhotoOutput?
     // プレビュー表示用のレイヤ
     var cameraPreviewLayer : AVCaptureVideoPreviewLayer?
+    // モノクロに加工した写真
+    var monochromeImage: UIImage?
+    // タイマー
+    var timer = Timer()
+    
     // シャッターボタン
     @IBOutlet weak var cameraButton: UIButton!
     // カウントラベル
     @IBOutlet weak var countLabel: UILabel!
-    
-    // タイマー
-    var timer = Timer()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,8 +67,23 @@ extension ViewController: AVCapturePhotoCaptureDelegate{
        if let imageData = photo.fileDataRepresentation() {
            // Data型をUIImageオブジェクトに変換
            let uiImage = UIImage(data: imageData)
+           
+           // グレースケールに加工
+           let ciImage:CIImage = CIImage(image: uiImage!)!;
+           let ciFilter:CIFilter = CIFilter(name: "CIColorMonochrome")!
+           ciFilter.setValue(ciImage, forKey: kCIInputImageKey)
+           ciFilter.setValue(CIColor(red: 0.75, green: 0.75, blue: 0.75), forKey: "inputColor")
+           ciFilter.setValue(1.0, forKey: "inputIntensity")
+           let ciContext:CIContext = CIContext(options: nil)
+           let cgimg:CGImage = ciContext.createCGImage(ciFilter.outputImage!, from:ciFilter.outputImage!.extent)!
+
+           // グレースケールに加工後のUIImage
+           // TODO: orientation:UIImageOrientation.Upにすると、画像の角度がプレビューと変わってしまうので、なんとかしたい
+           // カメラのデフォルトの向きが横長(Landscape)のためこうなる？
+           monochromeImage = UIImage(cgImage: cgimg, scale: 1.0, orientation:UIImage.Orientation.right)
+           
            // 写真ライブラリに画像を保存
-           UIImageWriteToSavedPhotosAlbum(uiImage!, nil,nil,nil)
+           UIImageWriteToSavedPhotosAlbum(monochromeImage!, nil,nil,nil)
        }
    }
 }
@@ -143,7 +160,7 @@ extension ViewController{
         // カメラの手ぶれ補正
         settings.isAutoStillImageStabilizationEnabled = true
         // 撮影された画像をdelegateメソッドで処理
-        self.photoOutput?.capturePhoto(with: settings, delegate: self as! AVCapturePhotoCaptureDelegate)
+        self.photoOutput?.capturePhoto(with: settings, delegate: self as AVCapturePhotoCaptureDelegate)
     }
 
     // 撮影後の画面遷移
