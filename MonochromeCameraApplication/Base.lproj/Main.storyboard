@@ -11,7 +11,7 @@
         <!--First View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController storyboardIdentifier="Initial" title="First View Controller" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="ViewController" customModule="MonochromeCameraApplication" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Initial" title="" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="ViewController" customModule="MonochromeCameraApplication" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -54,18 +54,15 @@
         <!--Second View Controller-->
         <scene sceneID="4eP-Cw-DiR">
             <objects>
-                <viewController storyboardIdentifier="Display" title="Second View Controller" useStoryboardIdentifierAsRestorationIdentifier="YES" id="zjG-tS-dtb" customClass="DisplayViewController" customModule="MonochromeCameraApplication" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Display" title="" useStoryboardIdentifierAsRestorationIdentifier="YES" id="zjG-tS-dtb" customClass="DisplayViewController" customModule="MonochromeCameraApplication" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8Xw-mc-XSi">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="モノクロ写真表示" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KWz-O6-FSx">
-                                <rect key="frame" x="0.0" y="185" width="393" height="95"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4k5-sO-Lzt">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
-                                <color key="textColor" red="0.8862745098" green="0.25882352939999997" blue="0.25882352939999997" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bcR-7j-SPx">
                                 <rect key="frame" x="138" y="733" width="116" height="46"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -82,6 +79,9 @@
                         <viewLayoutGuide key="safeArea" id="QsJ-tT-7Lt"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
+                    <connections>
+                        <outlet property="uiImageView" destination="4k5-sO-Lzt" id="Yve-pY-OSh"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kaF-PQ-NX7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
