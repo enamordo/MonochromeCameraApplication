@@ -2,25 +2,27 @@ import UIKit
 import AVFoundation
 
 class ViewController: UIViewController {
-
+    // <SESSION:セッション系>
     // デバイスからの入力と出力を管理するオブジェクトの作成
     var captureSession = AVCaptureSession()
-    // カメラデバイスそのものを管理するオブジェクトの作成
+
+    // <INPUT:デバイス系>
     // メインカメラの管理オブジェクトの作成
     var mainCamera: AVCaptureDevice?
     // インカメの管理オブジェクトの作成
     var innerCamera: AVCaptureDevice?
     // 現在使用しているカメラデバイスの管理オブジェクトの作成
     var currentDevice: AVCaptureDevice?
+    
+    // <OUTPUT:出力データ系>
     // キャプチャーの出力データを受け付けるオブジェクト
     var photoOutput : AVCapturePhotoOutput?
     // プレビュー表示用のレイヤ
     var cameraPreviewLayer : AVCaptureVideoPreviewLayer?
-    // モノクロに加工した写真
+    // 撮影後、モノクロに加工した写真
     var monochromeUIImage: UIImage?
-    // タイマー
-    var timer = Timer()
     
+    // <UIKIT:画面上のパーツ系>
     // シャッターボタン
     @IBOutlet weak var cameraButton: UIButton!
     // カウントラベル
@@ -32,8 +34,8 @@ class ViewController: UIViewController {
         setupDevice()
         setupInputOutput()
         setupPreviewLayer()
-        captureSession.startRunning()
         styleCaptureButton()
+        captureSession.startRunning()
     }
 
     override func didReceiveMemoryWarning() {
@@ -42,14 +44,15 @@ class ViewController: UIViewController {
     }
     
     @IBAction func cameraButton_TouchUpInside(_ sender: UIButton) {
-        // カウントタイムのリセット
+        // カウントタイムのリセット、カウント表示
         var time = 3
         self.countLabel.text = String(time)
         self.countLabel.isHidden = false
-        // タイマー処理
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { (timer) in
+        // タイマー処理実施
+        let timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { (timer) in
             time -= 1
             self.countLabel.text = String(time)
+            // カウント０でタイマーの停止、カウント非表示、撮影、画面遷移を実施
             if time == 0 {
                 timer.invalidate()
                 self.countLabel.isHidden = true
@@ -62,30 +65,13 @@ class ViewController: UIViewController {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                     self.transitionAndPassValue()
                 }
-                
             }
         })
     }
     
 }
 
-extension ViewController: AVCapturePhotoCaptureDelegate{
-    // 撮影した画像データが生成されたときに呼び出されるデリゲートメソッド
-    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        if let imageData = photo.fileDataRepresentation() {
-            // Data型をUIImageオブジェクトに変換
-            let uiImage = UIImage(data: imageData)
-            // 写真の向き情報を保持する
-            let orientation = uiImage!.imageOrientation
-            // グレースケール化
-            monochromeUIImage = convertToGrayscale(uiImage: uiImage!, orientation: orientation);
-            // 写真ライブラリに画像を保存
-            UIImageWriteToSavedPhotosAlbum(monochromeUIImage!, nil,nil,nil)
-        }
-    }
-}
-
-//MARK: カメラ設定メソッド
+// カメラ設定・撮影・画面遷移・画像加工等のメソッドを追加
 extension ViewController{
     // カメラの画質の設定
     func setupCaptureSession() {
@@ -135,12 +121,11 @@ extension ViewController{
         self.cameraPreviewLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
         // プレビューレイヤの表示の向きを設定
         self.cameraPreviewLayer?.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
-
         self.cameraPreviewLayer?.frame = view.frame
         self.view.layer.insertSublayer(self.cameraPreviewLayer!, at: 0)
     }
     
-    // ボタンのスタイルを設定
+    // シャッターボタンのスタイルを設定
     func styleCaptureButton() {
         cameraButton.layer.borderColor = UIColor.white.cgColor
         cameraButton.layer.borderWidth = 5
@@ -164,9 +149,9 @@ extension ViewController{
     func transitionAndPassValue() {
         // 次画面のDisplayViewControllerをインスタンス化
         let dvc = self.storyboard?.instantiateViewController(identifier: "Display") as! DisplayViewController
-        let uinc = UINavigationController(rootViewController: dvc)
-        // 画像データ受け渡し
+        // 次画面インスタンスの変数に、画像データを渡す
         dvc.monochromeUIImage = monochromeUIImage
+        let uinc = UINavigationController(rootViewController: dvc)
         // スワイプで戻れてしまうプッシュ遷移でなく、モーダル遷移のフルスクリーンにする
         uinc.modalPresentationStyle = .fullScreen
         self.navigationController?.present(uinc, animated: true)
@@ -174,17 +159,35 @@ extension ViewController{
     
     // グレースケールに加工する
     func convertToGrayscale(uiImage: UIImage, orientation: UIImage.Orientation) -> UIImage {
-        let ciImage:CIImage = CIImage(image: uiImage)!;
+        // 加工用のCIImageクラスへ変換
+        let ciImage:CIImage = CIImage(image: uiImage)!
+        // フィルター生成
         let ciFilter:CIFilter = CIFilter(name: "CIColorMonochrome")!
         ciFilter.setValue(ciImage, forKey: kCIInputImageKey)
         ciFilter.setValue(CIColor(red: 0.75, green: 0.75, blue: 0.75), forKey: "inputColor")
         ciFilter.setValue(1.0, forKey: "inputIntensity")
         let ciContext:CIContext = CIContext(options: nil)
         let cgimg:CGImage = ciContext.createCGImage(ciFilter.outputImage!, from:ciFilter.outputImage!.extent)!
-
+        // UIImageに再変換
         let monochromeUIImage = UIImage(cgImage: cgimg, scale: 1.0, orientation: orientation)
         
         return monochromeUIImage
     }
     
+}
+
+extension ViewController: AVCapturePhotoCaptureDelegate{
+    // 撮影した画像データが生成されたときに呼び出されるデリゲートメソッド
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        if let imageData = photo.fileDataRepresentation() {
+            // Data型をUIImageオブジェクトに変換
+            let uiImage = UIImage(data: imageData)
+            // 写真の向き情報を保持する（UIImageからCIImageへ変換・加工し、再度UIImageに戻す時に必要）
+            let orientation = uiImage!.imageOrientation
+            // グレースケール化
+            monochromeUIImage = convertToGrayscale(uiImage: uiImage!, orientation: orientation);
+            // 写真ライブラリに画像を保存
+            UIImageWriteToSavedPhotosAlbum(monochromeUIImage!, nil,nil,nil)
+        }
+    }
 }

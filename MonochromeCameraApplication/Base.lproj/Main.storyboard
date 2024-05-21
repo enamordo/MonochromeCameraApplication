@@ -8,7 +8,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--First View Controller-->
+        <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController storyboardIdentifier="Initial" title="" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="ViewController" customModule="MonochromeCameraApplication" customModuleProvider="target" sceneMemberID="viewController">
@@ -51,7 +51,7 @@
             </objects>
             <point key="canvasLocation" x="1934" y="-35"/>
         </scene>
-        <!--Second View Controller-->
+        <!--Display View Controller-->
         <scene sceneID="4eP-Cw-DiR">
             <objects>
                 <viewController storyboardIdentifier="Display" title="" useStoryboardIdentifierAsRestorationIdentifier="YES" id="zjG-tS-dtb" customClass="DisplayViewController" customModule="MonochromeCameraApplication" customModuleProvider="target" sceneMemberID="viewController">
@@ -64,9 +64,9 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bcR-7j-SPx">
-                                <rect key="frame" x="138" y="733" width="116" height="46"/>
+                                <rect key="frame" x="138" y="772" width="116" height="46"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="tintColor" red="0.8862745098" green="0.25882352939999997" blue="0.25882352939999997" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="chevron.backward" catalog="system" title=" 終了">
                                     <fontDescription key="titleFontDescription" style="UICTFontTextStyleTitle1"/>
