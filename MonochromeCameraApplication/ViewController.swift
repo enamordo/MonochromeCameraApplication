@@ -16,13 +16,15 @@ class ViewController: UIViewController {
     var photoOutput : AVCapturePhotoOutput?
     // プレビュー表示用のレイヤ
     var cameraPreviewLayer : AVCaptureVideoPreviewLayer?
+    // モノクロに加工した写真
+    var monochromeUIImage: UIImage?
+    // タイマー
+    var timer = Timer()
+    
     // シャッターボタン
     @IBOutlet weak var cameraButton: UIButton!
     // カウントラベル
     @IBOutlet weak var countLabel: UILabel!
-    
-    // タイマー
-    var timer = Timer()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,7 +54,15 @@ class ViewController: UIViewController {
                 timer.invalidate()
                 self.countLabel.isHidden = true
                 self.shoot()
-                self.transitionToDisplayViewController()
+                /* MARK:
+                   撮影後に画面2に遷移した時、元の画面から渡した白黒写真画像のデータが表示されない。
+                   AVCapturePhotoCaptureDelegateの処理が遷移に間に合っていないと思われる。
+                   他の適切な方法で実装できると分かるまで、遷移と値渡しは遅延実行で行う。
+                 */
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    self.transitionAndPassValue()
+                }
+                
             }
         })
     }
@@ -60,15 +70,19 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: AVCapturePhotoCaptureDelegate{
-   // 撮影した画像データが生成されたときに呼び出されるデリゲートメソッド
-   func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-       if let imageData = photo.fileDataRepresentation() {
-           // Data型をUIImageオブジェクトに変換
-           let uiImage = UIImage(data: imageData)
-           // 写真ライブラリに画像を保存
-           UIImageWriteToSavedPhotosAlbum(uiImage!, nil,nil,nil)
-       }
-   }
+    // 撮影した画像データが生成されたときに呼び出されるデリゲートメソッド
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        if let imageData = photo.fileDataRepresentation() {
+            // Data型をUIImageオブジェクトに変換
+            let uiImage = UIImage(data: imageData)
+            // 写真の向き情報を保持する
+            let orientation = uiImage!.imageOrientation
+            // グレースケール化
+            monochromeUIImage = convertToGrayscale(uiImage: uiImage!, orientation: orientation);
+            // 写真ライブラリに画像を保存
+            UIImageWriteToSavedPhotosAlbum(monochromeUIImage!, nil,nil,nil)
+        }
+    }
 }
 
 //MARK: カメラ設定メソッド
@@ -135,7 +149,7 @@ extension ViewController{
     }
     
     // カメラ撮影
-    func shoot() {
+    func shoot(){
         // 設定のオブジェクト化
         let settings = AVCapturePhotoSettings()
         // フラッシュの設定
@@ -143,16 +157,34 @@ extension ViewController{
         // カメラの手ぶれ補正
         settings.isAutoStillImageStabilizationEnabled = true
         // 撮影された画像をdelegateメソッドで処理
-        self.photoOutput?.capturePhoto(with: settings, delegate: self as! AVCapturePhotoCaptureDelegate)
+        photoOutput?.capturePhoto(with: settings, delegate: self as AVCapturePhotoCaptureDelegate)
     }
 
     // 撮影後の画面遷移
-    func transitionToDisplayViewController() {
+    func transitionAndPassValue() {
+        // 次画面のDisplayViewControllerをインスタンス化
         let dvc = self.storyboard?.instantiateViewController(identifier: "Display") as! DisplayViewController
         let uinc = UINavigationController(rootViewController: dvc)
+        // 画像データ受け渡し
+        dvc.monochromeUIImage = monochromeUIImage
         // スワイプで戻れてしまうプッシュ遷移でなく、モーダル遷移のフルスクリーンにする
         uinc.modalPresentationStyle = .fullScreen
         self.navigationController?.present(uinc, animated: true)
+    }
+    
+    // グレースケールに加工する
+    func convertToGrayscale(uiImage: UIImage, orientation: UIImage.Orientation) -> UIImage {
+        let ciImage:CIImage = CIImage(image: uiImage)!;
+        let ciFilter:CIFilter = CIFilter(name: "CIColorMonochrome")!
+        ciFilter.setValue(ciImage, forKey: kCIInputImageKey)
+        ciFilter.setValue(CIColor(red: 0.75, green: 0.75, blue: 0.75), forKey: "inputColor")
+        ciFilter.setValue(1.0, forKey: "inputIntensity")
+        let ciContext:CIContext = CIContext(options: nil)
+        let cgimg:CGImage = ciContext.createCGImage(ciFilter.outputImage!, from:ciFilter.outputImage!.extent)!
+
+        let monochromeUIImage = UIImage(cgImage: cgimg, scale: 1.0, orientation: orientation)
+        
+        return monochromeUIImage
     }
     
 }
